@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteBase /arcee/
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    RewriteRule ^(.*)$ public/ [L,QSA]
+</IfModule>

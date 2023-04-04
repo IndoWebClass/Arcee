@@ -1,0 +1,17 @@
+{
+    "name": "administrator/arcee",
+    "autoload": {
+        "psr-4": {
+            "app\\": "./"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alvin Raditya",
+            "email": "whitelynxnivla@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.5"
+    }
+}
