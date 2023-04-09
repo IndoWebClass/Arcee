@@ -4,11 +4,10 @@ Di repo ini, saya akan menunjukkan bagaimana saya membangun framework MVC php da
 Silahkan kritik dan sarannya dari temen-temen semua atas pendekatan yang saya lakukan ini. Sharingkan juga pendapat / pengalaman temen-temen semua dalam mencari solusi dari permasalahan yang sama dari step ke step nya.
 
 ## Playlist Youtube :
-Journey to MVC playlist :<br>
-https://www.youtube.com/watch?v=wEgr3tMiTAo&list=PLyyB5SdpfF393GRQhVVB-G5mvWbvTagSR&index=1
+Journey to MVC [playlist](https://www.youtube.com/watch?v=wEgr3tMiTAo&list=PLyyB5SdpfF393GRQhVVB-G5mvWbvTagSR&index=1)
 
 ## Composer
-Silahkan download composer dari link  berikut : https://getcomposer.org/<br>
+Silahkan download composer dari [link](https://getcomposer.org/) berikut<br>
 Lalu jalankan 'composer update' pada folder project anda agar folder vendor ter-generate
 
 ## .ENV
