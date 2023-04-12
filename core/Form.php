@@ -99,7 +99,7 @@ class Form
                     else if(in_array($params["input"]["type"],["checkbox"]))$this->generateInputCheckbox($params);
                     else if(in_array($params["input"]["type"],["radio"]))$this->generateInputRadio($params);
                     else if(in_array($params["input"]["type"],["date"]))$this->generateInputDate($params);
-                    else if(in_array($params["input"]["type"],["datetime"]))$this->generateDateTime($params);
+                    else if(in_array($params["input"]["type"],["datetime"]))$this->generateInputDateTime($params);
                     else if(in_array($params["input"]["type"],["file"]))$this->generateInputFile($params);
                     else if(in_array($params["input"]["type"],["number"]))$this->generateInputNumber($params);
                     else if(in_array($params["input"]["type"],["select"]))$this->generateInputSelect($params);
@@ -208,11 +208,37 @@ class Form
             {
                 $this->generateLabel($params["label"]);
                 $input = $params["input"];
+
+                $width = $input["width"] ? $input["width"] : "150px";
+
+                $this->html .= "<div class='col-{$input["col"]}'>";
+                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}'";
+                    $this->html .= " style='width:{$width}'";
+                    $this->html .= "/>";
+                $this->html .= "</div>";
+
+                $this->jsDocumentReady .= "$('#{$input["id"]}').kendoDatePicker({
+                        format: 'yyyy-MM-dd'";
+                $this->jsDocumentReady .= "});";
+                $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs['{$input["name"]}'] = $('#{$input["id"]}').data('kendoDatePicker');";
             }
-            protected function generateDateTime($params)
+            protected function generateInputDateTime($params)
             {
                 $this->generateLabel($params["label"]);
                 $input = $params["input"];
+
+                $width = $input["width"] ? $input["width"] : "240px";
+
+                $this->html .= "<div class='col-{$input["col"]}'>";
+                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}'";
+                    $this->html .= " style='width:{$width}'";
+                    $this->html .= "/>";
+                $this->html .= "</div>";
+
+                $this->jsDocumentReady .= "$('#{$input["id"]}').kendoDateTimePicker({
+                        format: 'yyyy-MM-dd HH:mm:ss'";
+                $this->jsDocumentReady .= "});";
+                $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs['{$input["name"]}'] = $('#{$input["id"]}').data('kendoDateTimePicker');";
             }
             protected function generateInputFile($params)
             {
@@ -223,6 +249,60 @@ class Form
             {
                 $this->generateLabel($params["label"]);
                 $input = $params["input"];
+
+                $width = $input["width"] ? $input["width"] : "240px";
+                $format = $input["format"] ?? "";
+                $decimals = $input["decimals"] ?? 0;
+                $min = $input["min"] ?? 1;
+                $max = $input["max"] ?? "x";
+                $step = $input["step"] ?? 1;
+
+                if($format == "rupiah")
+                {
+                    $width = "12.7rem";
+                    $format = "Rp #,#.##";
+                    $decimals = 2;
+                }
+                else if($format == "percentage")
+                {
+                    $width = "9.1rem";
+                    $format = "#.## \'%\'";
+                    $min = 0.01;
+                    $max = 100;
+                    $step = 0.01;
+                    $decimals = 2;
+                }
+                else if($format == "dec1")
+                {
+                    $width = "9.1rem";
+                    $format = "n1";
+                    $min = 0.1;
+                    $decimals = 1;
+                    $step = 0.1;
+                }
+                else if($format == "dec2")
+                {
+                    $width = "9.1rem";
+                    $format = "n2";
+                    $min = 0.01;
+                    $decimals = 2;
+                    $step = 0.01;
+                }
+
+                $this->html .= "<div class='col-{$input["col"]}'>";
+                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}'";
+                    $this->html .= " style='width:{$width}'";
+                    $this->html .= "/>";
+                $this->html .= "</div>";
+
+                $this->jsDocumentReady .= "$('#{$input["id"]}').kendoNumericTextBox({";
+                    if($format)$this->jsDocumentReady .= "format: '{$format}',";
+                    if($decimals)$this->jsDocumentReady .= "decimals: {$decimals},";
+                    if($min != "x")$this->jsDocumentReady .= "min: {$min},";
+                    if($max != "x")$this->jsDocumentReady .= "max: {$max},";
+                    $this->jsDocumentReady .= "step: {$step},";
+                $this->jsDocumentReady .= "});";
+                $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs['{$input["name"]}'] = $('#{$input["id"]}').data('kendoNumericTextBox');";
             }
             protected function generateInputSelect($params)
             {
@@ -231,11 +311,9 @@ class Form
 
                 $selectType = $input["selectType"] ?? "kendoDropDownList";
                 $options = $input["options"] ?? [];
-                $selectedValue = $input["selectedValue"] ?? "";
 
                 $this->html .= "<div class='col-{$input["col"]}'>";
                     $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}'";
-                        //if($input["value"])$this->html .= " value='{$input["value"]}'";
                         //if($input["width"])$this->html .= " style='width:{$input["width"]}'";
                     $this->html .= "/>";
                 $this->html .= "</div>";
@@ -245,29 +323,44 @@ class Form
                         dataValueField: 'value',
                     ";
                     if(in_array($selectType,["kendoComboBox","kendoMultiSelect"]))$this->jsDocumentReady .= "placeholder: '{$input["placeholder"]}',";
-
-                    if(count($options))
-                    {
-                        $this->jsDocumentReady .= "dataSource: [";
-                            foreach($options AS $option)
-                            {
-                                if(is_array($option))
-                                {
-                                    $value = $option[0];
-                                    $text = $option[1];
-                                }
-                                else
-                                {
-                                    $value = $option;
-                                    $text = $option;
-                                }
-                                $this->jsDocumentReady .= "{ text: '{$text}', value: '{$value}' },";
-                            }
-                        $this->jsDocumentReady .= "],";
-                    }
                 $this->jsDocumentReady .= "});";
                 $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs['{$input["name"]}'] = $('#{$input["id"]}').data('{$selectType}');";
-                if($selectedValue)$this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.value('{$selectedValue}');";
+
+                $this->jsGlobal .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.reset = function(){
+                    Arcee.Forms.{$this->id}.inputs.{$input["name"]}.setDataSource(new kendo.data.DataSource({data: []}));
+                    Arcee.Forms.{$this->id}.inputs.{$input["name"]}.select(-1);
+                    Arcee.Forms.{$this->id}.inputs.{$input["name"]}.value('');
+                };";
+
+                $this->jsGlobal .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.populate = function(datas){
+                    Arcee.Forms.{$this->id}.inputs.{$input["name"]}.reset();
+
+                    let options = [];
+                    let selected = '';
+                    for(let data of datas){
+                        let value = '';
+                        let text = '';
+
+                        if(data instanceof Array){
+                            value = data[0];
+                            text = data[1];
+                            if(data.length == 3 && data[2]){
+                                selected = value;
+                            }
+                        }
+                        else{
+                            value = data;
+                            text = data;
+                        }
+                        options.push({value:value, text:text});
+                    }
+                    Arcee.Forms.{$this->id}.inputs.{$input["name"]}.setDataSource(new kendo.data.DataSource({data: options}));
+                    if(selected)Arcee.Forms.{$this->id}.inputs.{$input["name"]}.value(selected);
+                };";
+                if(count($options))
+                {
+                    $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.populate(".json_encode($options).");";
+                }
             }
 
                 protected function generateLabel($params)
