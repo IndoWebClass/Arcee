@@ -15,7 +15,8 @@
     <script src="/Arcee/src/kendoui/js/jquery.min.js"></script>
     <script>
       let Arcee = {
-        Forms:{}
+        Forms:{},
+        KendoWindows:{}
       };
     </script>
 

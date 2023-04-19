@@ -11,11 +11,11 @@ $params = [
 
 $form = new \app\core\Form($params);
 //$form->addInput(["input" => ["type" => "hidden", "name" => "hidden", "value" => 10]]);
-//$form->addInput(["label" => ["text" => "text"],"input" => ["name" => "text"]]);
-//$form->addInput(["label" => ["text" => "checkbox"],"input" => ["type" => "checkbox", "name" => "checkbox"]]);
-//$form->addInput(["label" => ["text" => "radio"],"input" => ["type" => "radio", "name" => "radio", "options" => ["satu", "dua", "tiga"]]]);
+$form->addInput(["label" => ["text" => "text"],"input" => ["name" => "text"]]);
+$form->addInput(["label" => ["text" => "checkbox"],"input" => ["type" => "checkbox", "name" => "checkbox"]]);
+$form->addInput(["label" => ["text" => "radio"],"input" => ["type" => "radio", "name" => "radio", "options" => ["satu", "dua", "tiga"]]]);
 //$form->addInput(["label" => ["text" => "radio2"],"input" => ["type" => "radio", "name" => "radio2", "options" => ["empat", "lima", "enam"]]]);
-//$form->addInput(["input" => ["type" => "select", "name" => "combobox", "selectType" => "kendoComboBox", "options" => ["satu", ["2", "dua", true], [3,"tiga"]]]]);
+$form->addInput(["input" => ["type" => "select", "name" => "combobox", "selectType" => "kendoComboBox", "options" => ["satu", ["2", "dua", true], [3,"tiga"]]]]);
 //$form->addInput(["label" => ["text" => "date"],"input" => ["type" => "date", "name" => "date"]]);
 //$form->addInput(["label" => ["text" => "datetime"], "input" => ["type" => "datetime", "name" => "datetime"]]);
 $form->addInput(["label" => ["text" => "rupiah"], "input" => ["type" => "number", "name" => "rupiah", "format" => "rupiah"]]);

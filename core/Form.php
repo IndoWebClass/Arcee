@@ -7,7 +7,7 @@ class Form
     protected string $id;
     protected string $html;
     protected string $jsGlobal;
-    protected string $js;
+    protected string $jsDocumentReady;
 
     protected array $label;
     protected array $buttons;
@@ -18,7 +18,7 @@ class Form
     {
         $this->app = Application::$app;
 
-        $this->id = $params["id"];
+        $this->id = "form_{$params["id"]}";
 
         $this->buttons = $params["buttons"] ?? [];
 
@@ -42,7 +42,7 @@ class Form
         $this->inputParams[] = $params;
     }
 
-    public function render()
+    protected function generateBody()
     {
         $CSRF = new CSRF($_SESSION["arcee"]["key"]);
         $token = $CSRF->getToken($this->id);
@@ -52,23 +52,26 @@ class Form
             $this->html .= "<input type='hidden' name='token' value='{$token}'/>";
             $this->html .= "<input type='hidden' name='key' value='{$_SESSION["arcee"]["key"]}'/>";
 
-        $this->jsDocumentReady .= "Arcee.Forms['{$this->id}'] = {};";
-        $this->jsDocumentReady .= "Arcee.Forms['{$this->id}']['this'] = $('#{$this->id}');";
-        $this->jsDocumentReady .= "Arcee.Forms['{$this->id}']['labels'] = {};";
-        $this->jsDocumentReady .= "Arcee.Forms['{$this->id}']['inputs'] = {};";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}'] = {};";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['this'] = $('#{$this->id}');";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['labels'] = {};";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['inputs'] = {};";
 
         $this->generateInputs();
 
         $this->html .= "</form>";
 
-
         $this->generateButtons();
         $this->generateErrorMessage();
         $this->generateAjax();
+    }
+    public function render()
+    {
+        $this->generateBody();
 
         echo $this->html;
-        echo "<script>$(document).ready(function () {".$this->jsDocumentReady."})</script>";
         if($this->jsGlobal)echo "<script>{$this->jsGlobal}</script>";
+        echo "<script>$(document).ready(function () {".$this->jsDocumentReady."})</script>";
     }
         protected function generateInputs()
         {
@@ -77,7 +80,7 @@ class Form
                 $label = $params["label"] ?? [];
                     $params["label"]["id"] = $label["id"] ?? $this->id.ucfirst($params["input"]["name"])."_label";
                     $params["label"]["text"] = $label["text"] ?? $params["input"]["name"];
-                    $params["label"]["col"] = $label["col"] ?? 1;
+                    $params["label"]["col"] = $label["col"] ?? $this->label["col"] ?? 1;
                     $params["label"]["width"] = $label["width"] ?? "";
                     $params["label"]["isShow"] = $label["isShow"] ?? $this->label["isShow"] ?? true;
                     if(!$params["label"]["isShow"]) $params["label"]["col"] = 0;
@@ -93,7 +96,7 @@ class Form
 
                     $params["label"]["inputName"] = $params["input"]["name"];
 
-                $this->html .= "<div class='row'>";
+                $this->html .= "<div class='row align-items-center'>";
                     if(in_array($params["input"]["type"],["hidden"]))$this->generateInputHidden($params);
                     else if(in_array($params["input"]["type"],["text","email","password"]))$this->generateInputText($params);
                     else if(in_array($params["input"]["type"],["checkbox"]))$this->generateInputCheckbox($params);
@@ -326,13 +329,13 @@ class Form
                 $this->jsDocumentReady .= "});";
                 $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs['{$input["name"]}'] = $('#{$input["id"]}').data('{$selectType}');";
 
-                $this->jsGlobal .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.reset = function(){
+                $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.reset = function(){
                     Arcee.Forms.{$this->id}.inputs.{$input["name"]}.setDataSource(new kendo.data.DataSource({data: []}));
                     Arcee.Forms.{$this->id}.inputs.{$input["name"]}.select(-1);
                     Arcee.Forms.{$this->id}.inputs.{$input["name"]}.value('');
                 };";
 
-                $this->jsGlobal .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.populate = function(datas){
+                $this->jsDocumentReady .= "Arcee.Forms.{$this->id}.inputs.{$input["name"]}.populate = function(datas){
                     Arcee.Forms.{$this->id}.inputs.{$input["name"]}.reset();
 
                     let options = [];
@@ -369,7 +372,7 @@ class Form
                     {
                         $this->html .= "<div class='col-{$params["col"]}'>";
                             $this->html .= "<label id='{$params["id"]}' for=''";
-                            $this->html .= " class='col-{$params["col"]}'";
+                            $this->html .= " class=''";
                             if($params["width"])$this->html .= " style='width:{$params["width"]}'";
                             $this->html .= ">{$params["text"]}</label>";
                         $this->html .= "</div>";
@@ -393,13 +396,30 @@ class Form
             $submitColor = $this->buttons["submitColor"] ?? "primary";
             $submitOnClickFunction = $this->buttons["submitOnClickFunction"] ?? $this->id."Submit";
 
+            $additionals = $this->buttons["additionals"] ?? [];
+
             $this->ajax["function"] = $submitOnClickFunction;
 
             $this->html .= "<div class='d-flex mt-4 pb-3 justify-content-{$justifyContent}'>";
 
-                if($isShow && $cancelIsShow)$this->html .= "<button class='btn btn-{$cancelColor}' onClick='{$cancelOnClickFunction}();'>{$cancelText}</button>";
-                if($isShow && $submitIsShow)$this->html .= "<button class='btn btn-{$submitColor}' onClick='{$submitOnClickFunction}();'>{$submitText}</button>";
+                if($isShow && $cancelIsShow)$this->html .= "<button class='m-1 btn btn-{$cancelColor}' onClick='{$cancelOnClickFunction}();'>{$cancelText}</button>";
+                if($isShow && $submitIsShow)$this->html .= "<button class='m-1 btn btn-{$submitColor}' onClick='{$submitOnClickFunction}();'>{$submitText}</button>";
+                if(count($additionals))
+                {
+                    foreach($additionals AS $additional)
+                    {
+                        $color = $additional["color"] ?? "primary";
+                        $onClickFunctions = $additional["onClickFunctions"] ?? [];
+                        $text = $additional["text"] ?? "ADD-ON";
 
+                        $onClickFunction = "";
+                        foreach($onClickFunctions AS $function)
+                        {
+                            $onClickFunction .= $function.";";
+                        }
+                        if($isShow)$this->html .= "<button class='m-1 btn btn-{$color}' onClick='{$onClickFunction}'>{$text}</button>";
+                    }
+                }
             $this->html .= "</div>";
         }
         protected function generateErrorMessage()
@@ -428,4 +448,14 @@ class Form
                 };";
             }
         }
+
+    public function getBody()
+    {
+        $this->generateBody();
+
+        $body = $this->html;
+        if($this->jsGlobal)$body .= "<script>{$this->jsGlobal}</script>";
+        $body .= "<script>$(document).ready(function () {".$this->jsDocumentReady."})</script>";
+        return $body;
+    }
 }
