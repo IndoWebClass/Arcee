@@ -5,6 +5,7 @@ class Form
 {
     protected Application $app;
     protected string $id;
+    protected string $elementId;
     protected string $html;
     protected string $jsGlobal;
     protected string $jsDocumentReady;
@@ -18,7 +19,8 @@ class Form
     {
         $this->app = Application::$app;
 
-        $this->id = "form_{$params["id"]}";
+        $this->id = $params["id"];
+        $this->elementId = "form_{$this->id}";
 
         $this->buttons = $params["buttons"] ?? [];
 
@@ -47,15 +49,15 @@ class Form
         $CSRF = new CSRF($_SESSION["arcee"]["key"]);
         $token = $CSRF->getToken($this->id);
 
-        $this->html .= "<form id='{$this->id}'>";
+        $this->html .= "<form id='{$this->elementId}'>";
             $this->html .= "<input type='hidden' name='formId' value='{$this->id}'/>";
             $this->html .= "<input type='hidden' name='token' value='{$token}'/>";
             $this->html .= "<input type='hidden' name='key' value='{$_SESSION["arcee"]["key"]}'/>";
 
         $this->jsGlobal .= "Arcee.Forms['{$this->id}'] = {};";
-        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['this'] = $('#{$this->id}');";
-        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['labels'] = {};";
-        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['inputs'] = {};";
+        $this->jsGlobal .= "Arcee.Forms.{$this->id}['this'] = $('#{$this->elementId}');";
+        $this->jsGlobal .= "Arcee.Forms.{$this->id}['labels'] = {};";
+        $this->jsGlobal .= "Arcee.Forms.{$this->id}['inputs'] = {};";
 
         $this->generateInputs();
 

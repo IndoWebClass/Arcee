@@ -7,7 +7,7 @@ $params = [
         "cancelIsShow" => false,
         "submitText" => "CARI",
         "additionals" => [
-            ["onClickFunctions" => ["Arcee.KendoWindows.kendoWindow_addEmployee.center().open()"], "text" => "ADD EMPLOYEE"]
+            ["onClickFunctions" => ["Arcee.KendoWindows.addEmployee.center().open()"], "text" => "ADD EMPLOYEE"]
         ]
     ]
 ];
@@ -32,7 +32,7 @@ $params = [
     "label" => ["col" => 4],
     "buttons" => [
         "submitText" => "TAMBAH",
-        "cancelOnClickFunction" => "Arcee.KendoWindows.kendoWindow_addEmployee.close"
+        "cancelOnClickFunction" => "Arcee.KendoWindows.addEmployee.close"
     ]
 ];
 

@@ -10,7 +10,7 @@
 
             this.url = params.url;
             this.formId = params.formId;
-            this.data = $("#"+this.formId).serialize();
+            this.data = Arcee.Forms[this.formId].this.serialize();
         }
 
         render(){

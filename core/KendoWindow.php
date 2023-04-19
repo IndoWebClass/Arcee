@@ -5,6 +5,7 @@ class KendoWindow
 {
     protected Application $app;
     protected string $id;
+    protected string $elementId;
     protected string $html;
     protected string $jsGlobal;
     protected string $jsDocumentReady;
@@ -13,7 +14,8 @@ class KendoWindow
     {
         $this->app = Application::$app;
 
-        $this->id = "kendoWindow_{$params["id"]}";
+        $this->id = $params["id"];
+        $this->elementId = "kendoWindow_{$this->id}";
 
         if(isset($params["body"]))$this->setBody($params["body"]);
 
@@ -34,11 +36,9 @@ class KendoWindow
 
     protected function generateBody()
     {
-        $this->html .= "<div id='{$this->id}'>";
+        $this->html .= "<div id='{$this->elementId}'>";
         $this->html .= $this->body;
         $this->html .= "</div>";
-
-        //$this->jsGlobal .= "Arcee.KendoWindows['{$this->id}'] = $('#{$this->id}').kendoWindow();";
 
         $this->jsDocumentReady .= "
             let windowOptions = {
@@ -50,7 +50,7 @@ class KendoWindow
                 visible: false,
                 //close: onClose
             };
-            Arcee.KendoWindows['{$this->id}'] = $('#{$this->id}').kendoWindow(windowOptions).data('kendoWindow');";
+            Arcee.KendoWindows['{$this->id}'] = $('#{$this->elementId}').kendoWindow(windowOptions).data('kendoWindow');";
     }
     public function render()
     {
