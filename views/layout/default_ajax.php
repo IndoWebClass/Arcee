@@ -14,6 +14,10 @@
         }
 
         render(){
+            Arcee.BSModals.ajax.open({
+                body : "Loading...<br/>Please wait"
+                ,footer : "Please dont close the window"
+            });
             $.ajax({
                 type: this.type,
                 url: this.url,
@@ -25,10 +29,19 @@
                 }
             })
             .done(function(){})
-            .fail(function(){})
+            .fail(function(){
+                Arcee.BSModals.ajax.open({
+                    body : "Ajax fail. Plese try again, or contanct administrator"
+                });
+            })
             .always(function(){})
         }
     }
-
-
 </script>
+<?php
+
+$ajaxModal = new \app\core\BSModal([
+    "id" => "ajax"
+]);
+$ajaxModal->setTitle("Ajax notification");
+$ajaxModal->render();
