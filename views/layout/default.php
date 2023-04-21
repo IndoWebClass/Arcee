@@ -16,7 +16,8 @@
     <script>
       let Arcee = {
         Forms:{},
-        KendoWindows:{}
+        KendoWindows:{},
+        BSModals:{}
       };
     </script>
 
