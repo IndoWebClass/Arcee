@@ -1,4 +1,8 @@
 <?php
+$CSRF = new \app\core\CSRF($_SESSION["arcee"]["key"]);
+$formId = "formLogin";
+//$token = hash_hmac("sha256", $formId." valid for ".date("Y-m-d"), $_SESSION["arcee"]["key"]);
+$token = $CSRF->getToken($formId);
 ?>
 <main id="login" class="row g-0" style="height:100vh">
     <div id="login_left" class="col-xxl-3 col-xl-4 col-lg-5 col-12 p-5">
@@ -9,19 +13,10 @@
 
         <?php
         $formParams = [
-            "id" => "login",
-
-            "label" =>[
-                "isShow" => false
-            ],
-
-            "buttons" => [
-                //"justifyContent" => "end",
-
-                //"cancelIsShow" => false,
-                "submitText" => "LOG IN"
-            ],
-
+            "id" => "formLogin",
+            "label" =>["isShow" => false],
+            "buttons" => ["submitText" => "LOG IN"],
+            "errorMessage" =>["isShow" => true],
             "ajax" => ["isRender" => false]
         ];
         $form = new \app\core\Form($formParams);

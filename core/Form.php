@@ -5,7 +5,7 @@ class Form
 {
     protected Application $app;
     protected string $id;
-    protected string $elementId;
+        protected string $elementId;
     protected string $html;
     protected string $jsGlobal;
     protected string $jsDocumentReady;
@@ -27,6 +27,8 @@ class Form
         $this->label = $params["label"] ?? [];
 
         $this->ajax = $params["ajax"] ?? [];
+
+        $this->errorMessage = $params["errorMessage"] ?? [];
 
         $this->init();
     }
@@ -55,9 +57,9 @@ class Form
             $this->html .= "<input type='hidden' name='key' value='{$_SESSION["arcee"]["key"]}'/>";
 
         $this->jsGlobal .= "Arcee.Forms['{$this->id}'] = {};";
-        $this->jsGlobal .= "Arcee.Forms.{$this->id}['this'] = $('#{$this->elementId}');";
-        $this->jsGlobal .= "Arcee.Forms.{$this->id}['labels'] = {};";
-        $this->jsGlobal .= "Arcee.Forms.{$this->id}['inputs'] = {};";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['this'] = $('#{$this->elementId}');";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['labels'] = {};";
+        $this->jsGlobal .= "Arcee.Forms['{$this->id}']['inputs'] = {};";
 
         $this->generateInputs();
 
@@ -215,9 +217,10 @@ class Form
                 $input = $params["input"];
 
                 $width = $input["width"] ? $input["width"] : "150px";
+                $value = $input["value"] ? $input["value"] : date("Y-m-d");
 
                 $this->html .= "<div class='col-{$input["col"]}'>";
-                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}'";
+                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}' value='{$value}'";
                     $this->html .= " style='width:{$width}'";
                     $this->html .= "/>";
                 $this->html .= "</div>";
@@ -233,9 +236,10 @@ class Form
                 $input = $params["input"];
 
                 $width = $input["width"] ? $input["width"] : "240px";
+                $value = $input["value"] ? $input["value"] : date("Y-m-d H:i:s");
 
                 $this->html .= "<div class='col-{$input["col"]}'>";
-                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}'";
+                    $this->html .= "<input id='{$input["id"]}' name='{$input["name"]}' value='{$value}'";
                     $this->html .= " style='width:{$width}'";
                     $this->html .= "/>";
                 $this->html .= "</div>";
@@ -426,7 +430,12 @@ class Form
         }
         protected function generateErrorMessage()
         {
-            $this->html .= "<div id='{$this->id}_errorMessage' class='d-flex pb-5 justify-content-center text-danger'></div>";
+            $params = $this->errorMessage;
+            $isShow = $params["isShow"] ?? false;
+            if($isShow)
+            {
+                $this->html .= "<div id='{$this->id}_errorMessage' class='d-flex pb-5 justify-content-center text-danger'></div>";
+            }
         }
         protected function generateAjax()
         {
