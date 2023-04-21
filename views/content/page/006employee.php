@@ -56,4 +56,5 @@ $window->render();
 ?>
 <style>
     .k-widget *{box-sizing: border-box;}
+    .k-widget.k-window{z-index:1050 !important;}
 </style>
