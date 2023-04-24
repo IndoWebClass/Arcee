@@ -3,9 +3,12 @@ namespace app\core;
 
 class CSRF
 {
+    protected Application $app;
     protected string $key;
     public function __construct(string $key)
     {
+        $this->app = Application::$app;
+
         $this->key = $key;
     }
 
