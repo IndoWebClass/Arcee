@@ -5,6 +5,7 @@ $dotenv->load();
 require_once __DIR__."/../../params.php";
 
 use app\core\Application;
+use app\core\Ajax;
 use app\core\CSRF;
 use app\core\StoredProcedure;
 
@@ -23,8 +24,9 @@ if($CSRF->isTokenValid($formId, $token))
     unset($_POST["token"]);
     unset($_POST["key"]);
 
-    $result = $_POST;
-    $result["scriptName"] = $_SERVER['SCRIPT_NAME'];
+    $ajax= new Ajax();
+
+    $result = $ajax->getPageId();
 }
 
 echo json_encode($result);
