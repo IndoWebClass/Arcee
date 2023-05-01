@@ -26,15 +26,13 @@ class Ajax
     //get / return variable
         public function getPageId()
         {
-            $scriptName = $_SERVER["SCRIPT_NAME"];
+            $scriptName = $this->app->getServerScriptName();
             $explode = explode("/",$scriptName);
 
             $folder = $explode[3];
             $pageId = intval(substr($folder,0,3));
 
             return $pageId;
-
-
         }
     //get / return variable
 

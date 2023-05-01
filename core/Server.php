@@ -45,4 +45,9 @@ class Server
 
         return $this->pathVars;
     }
+
+    public function getScriptName()
+    {
+        return $_SERVER["SCRIPT_NAME"];
+    }
 }

@@ -40,6 +40,10 @@ class Application
     {
         return $this->server->getPath();
     }
+    public function getServerScriptName()
+    {
+        return $this->server->getScriptName();
+    }
     public function getRouterContentFileName()
     {
         return $this->router->getContentFileName();
