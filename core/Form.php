@@ -56,6 +56,12 @@ class Form
             $this->html .= "<input type='hidden' name='token' value='{$token}'/>";
             $this->html .= "<input type='hidden' name='key' value='{$_SESSION["arcee"]["key"]}'/>";
 
+        if(isset($_SESSION["arcee"]["isLogin"]) && $_SESSION["arcee"]["isLogin"])
+        {
+            $this->html .= "<input type='hidden' name='isAuth' value='1'/>";
+            $this->html .= "<input type='hidden' name='userId' value='{$_SESSION["arcee"]["userId"]}'/>";
+        }
+
         $this->jsGlobal .= "Arcee.Forms['{$this->id}'] = {};";
         $this->jsGlobal .= "Arcee.Forms['{$this->id}']['this'] = $('#{$this->elementId}');";
         $this->jsGlobal .= "Arcee.Forms['{$this->id}']['labels'] = {};";

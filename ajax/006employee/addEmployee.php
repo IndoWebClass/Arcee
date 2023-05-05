@@ -16,17 +16,22 @@ $result = [];
 $formId = $_POST["formId"];
 $token = $_POST["token"];
 $key = $_POST["key"];
+$isAuth = $_POST["isAuth"];
+$userId = $_POST["userId"];
 $CSRF = new CSRF($key);
 
 if($CSRF->isTokenValid($formId, $token))
 {
-    unset($_POST["formId"]);
-    unset($_POST["token"]);
-    unset($_POST["key"]);
+    //unset($_POST["formId"]);
+    //unset($_POST["token"]);
+    //unset($_POST["key"]);
 
-    $ajax= new Ajax();
+    $ajax = new Ajax(["post"=>$_POST, "access" => "cr"]);
 
-    $result = $ajax->getPageId();
+    if($ajax->isAccess())
+    {
+
+    }
 }
 
 echo json_encode($result);

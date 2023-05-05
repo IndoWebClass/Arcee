@@ -4,7 +4,7 @@ session_start();
 if(!isset($_SESSION["arcee"]))
     $_SESSION["arcee"] = [];
 
-$_SESSION["arcee"]["key"] = $_SESSION["key"] ?? bin2hex(random_bytes(32));
+$_SESSION["arcee"]["key"] = $_SESSION["arcee"]["key"] ?? bin2hex(random_bytes(32));
 
 //var_dump($_SESSION);
 
