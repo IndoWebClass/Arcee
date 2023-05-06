@@ -58,7 +58,7 @@ class Form
 
         if(isset($_SESSION["arcee"]["isLogin"]) && $_SESSION["arcee"]["isLogin"])
         {
-            $this->html .= "<input type='hidden' name='isAuth' value='1'/>";
+            //$this->html .= "<input type='hidden' name='isAuth' value='1'/>";
             $this->html .= "<input type='hidden' name='userId' value='{$_SESSION["arcee"]["userId"]}'/>";
         }
 

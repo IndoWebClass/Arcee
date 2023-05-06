@@ -8,9 +8,11 @@ class Ajax
     protected array $get;
     protected array $post;
 
-    protected int $isAuth;
+    protected bool $isAuth;
     protected string $access;
-    protected int $isAccess;
+    protected bool $isAccess;
+
+    protected bool $isOk;
     public function __construct(array $params= [])
     {
         $this->app = Application::$app;
@@ -18,8 +20,10 @@ class Ajax
         $this->get = $params["get"] ?? [];
         $this->post = $params["post"] ?? [];
         $this->access = $params["access"] ?? "r";
+        $this->isAuth = $params["isAuth"] ?? false;
 
-        $this->isAuth = $this->post["isAuth"] ?? 0;
+        $this->isOk = true;
+        $this->isAccess = false;
 
         $this->init();
     }
@@ -27,26 +31,12 @@ class Ajax
     //init
         protected function init()
         {
+            $this->checkCSRF();
+
             if($this->isAuth)
-            {
-                $userId =  $this->post["userId"];
-                $sessionKey =  $this->post["key"];
+                $this->checkSession();
 
-                $sp = new StoredProcedure();
-                $rows = $sp->setName("sp_auth_checkSession")
-                    ->setParameters(["i_userId" => $userId, "i_sessionKey" => $sessionKey])
-                    ->prepare()
-                    ->execute()
-                    ->fetch();
-                $statusCode = $rows[0]["statusCode"];
-
-                if($statusCode == 100)
-                {
-                    $this->isAuth = 1;
-                    $this->checkAccess();
-                }
-                else $this->isAuth = 0;
-            }
+            $this->checkAccess();
         }
     //init
 
@@ -76,32 +66,57 @@ class Ajax
 
             return $pageId;
         }
+        protected function checkCSRF()
+        {
+            $CSRF = new CSRF($this->post["key"]);
+            if(!$CSRF->isTokenValid($this->post["formId"], $this->post["token"]))$this->isOk = false;
+        }
+        protected function checkSession()
+        {
+            if($this->isOk)
+            {
+                $userId =  $this->post["userId"];
+                $sessionKey =  $this->post["key"];
+
+                $sp = new StoredProcedure();
+                $rows = $sp->setName("sp_auth_checkSession")
+                    ->setParameters(["i_userId" => $userId, "i_sessionKey" => $sessionKey])
+                    ->prepare()
+                    ->execute()
+                    ->fetch();
+                $statusCode = $rows[0]["statusCode"];
+
+                if($statusCode != 100)$this->isOk = false;
+            }
+        }
         protected function checkAccess()
         {
-            $userId =  $this->post["userId"];
-            $pageId = $this->getPageId();
-            $c = str_contains($this->access, "c") ? 1 : 0;
-            $r = str_contains($this->access, "r") ? 1 : 0;
-            $u = str_contains($this->access, "u") ? 1 : 0;
-            $d = str_contains($this->access, "d") ? 1 : 0;
+            if($this->isOk)
+            {
+                $userId =  $this->post["userId"];
+                $pageId = $this->getPageId();
+                $c = str_contains($this->access, "c") ? 1 : 0;
+                $r = str_contains($this->access, "r") ? 1 : 0;
+                $u = str_contains($this->access, "u") ? 1 : 0;
+                $d = str_contains($this->access, "d") ? 1 : 0;
 
-            $sp = new StoredProcedure();
-            $rows = $sp->setName("sp_ajax_checkAccess")
-                ->setParameters([
-                    "i_userId" => $userId,
-                    "i_pageId" => $pageId,
-                    "i_c" => $c,
-                    "i_r" => $r,
-                    "i_u" => $u,
-                    "i_d" => $d
-                    ])
-                ->prepare()
-                ->execute()
-                ->fetch();
-            $statusCode = $rows[0]["statusCode"];
+                $sp = new StoredProcedure();
+                $rows = $sp->setName("sp_ajax_checkAccess")
+                    ->setParameters([
+                        "i_userId" => $userId,
+                        "i_pageId" => $pageId,
+                        "i_c" => $c,
+                        "i_r" => $r,
+                        "i_u" => $u,
+                        "i_d" => $d
+                        ])
+                    ->prepare()
+                    ->execute()
+                    ->fetch();
+                $statusCode = $rows[0]["statusCode"];
 
-            if($statusCode == 100)$this->isAccess = 1;
-            else $this->isAccess = 0;
+                if($statusCode != 100)$this->isOk = false;
+            }
         }
     //data proses
 }
