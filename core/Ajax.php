@@ -91,7 +91,7 @@ class Ajax
         }
         protected function checkAccess()
         {
-            if($this->isOk)
+            if($this->isAuth && $this->isOk)
             {
                 $userId =  $this->post["userId"];
                 $pageId = $this->getPageId();
@@ -116,6 +116,7 @@ class Ajax
                 $statusCode = $rows[0]["statusCode"];
 
                 if($statusCode != 100)$this->isOk = false;
+                else $this->isAccess = true;
             }
         }
     //data proses
