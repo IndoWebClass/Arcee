@@ -10,20 +10,15 @@ class Ajax
 
     protected bool $isAuth;
     protected string $access;
-    protected bool $isAccess;
 
-    protected bool $isOk;
     public function __construct(array $params= [])
     {
         $this->app = Application::$app;
 
-        $this->get = $params["get"] ?? [];
-        $this->post = $params["post"] ?? [];
+        $this->get = $_GET;
+        $this->post = $_POST;
         $this->access = $params["access"] ?? "r";
-        $this->isAuth = $params["isAuth"] ?? false;
-
-        $this->isOk = true;
-        $this->isAccess = false;
+        $this->isAuth = $params["isAuth"] ?? true;
 
         $this->init();
     }
@@ -31,12 +26,15 @@ class Ajax
     //init
         protected function init()
         {
-            $this->checkCSRF();
+            if($this->app->getStatusCode() == 100)
+            {
+                $this->checkCSRF();
 
-            if($this->isAuth)
-                $this->checkSession();
+                if($this->isAuth)
+                    $this->checkSession();
 
-            $this->checkAccess();
+                $this->checkAccess();
+            }
         }
     //init
 
@@ -47,33 +45,45 @@ class Ajax
     //get / return variable
         public function isAuth()
         {
-            return $this->isAuth;
+            if($this->app->getStatusCode() == 100)
+            {
+                return $this->isAuth;
+            }
         }
         public function isAccess()
         {
-            return $this->isAccess;
+            if($this->app->getStatusCode() == 100)
+            {
+                return $this->isAccess;
+            }
         }
     //get / return variable
 
     //data proses
         protected function getPageId()
         {
-            $scriptName = $this->app->getServerScriptName();
-            $explode = explode("/",$scriptName);
+            if($this->app->getStatusCode() == 100)
+            {
+                $scriptName = $this->app->getServerScriptName();
+                $explode = explode("/",$scriptName);
 
-            $folder = $explode[3];
-            $pageId = intval(substr($folder,0,3));
+                $folder = $explode[3];
+                $pageId = intval(substr($folder,0,3));
 
-            return $pageId;
+                return $pageId;
+            }
         }
         protected function checkCSRF()
         {
-            $CSRF = new CSRF($this->post["key"]);
-            if(!$CSRF->isTokenValid($this->post["formId"], $this->post["token"]))$this->isOk = false;
+            if($this->app->getStatusCode() == 100)
+            {
+                $CSRF = new CSRF($this->post["key"]);
+                if(!$CSRF->isTokenValid($this->post["formId"], $this->post["token"]))$this->isOk = false;
+            }
         }
         protected function checkSession()
         {
-            if($this->isOk)
+            if($this->app->getStatusCode() == 100)
             {
                 $userId =  $this->post["userId"];
                 $sessionKey =  $this->post["key"];
@@ -84,14 +94,12 @@ class Ajax
                     ->prepare()
                     ->execute()
                     ->fetch();
-                $statusCode = $rows[0]["statusCode"];
-
-                if($statusCode != 100)$this->isOk = false;
+                $this->app->setStatusCode($rows[0]["statusCode"]);
             }
         }
         protected function checkAccess()
         {
-            if($this->isAuth && $this->isOk)
+            if($this->app->getStatusCode() == 100 && $this->isAuth)
             {
                 $userId =  $this->post["userId"];
                 $pageId = $this->getPageId();
@@ -113,10 +121,7 @@ class Ajax
                     ->prepare()
                     ->execute()
                     ->fetch();
-                $statusCode = $rows[0]["statusCode"];
-
-                if($statusCode != 100)$this->isOk = false;
-                else $this->isAccess = true;
+                $this->app->setStatusCode($rows[0]["statusCode"]);
             }
         }
     //data proses

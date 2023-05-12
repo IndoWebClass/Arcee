@@ -12,11 +12,18 @@ $app = new Application(PARAMS);
 
 $result = [];
 
-$ajax = new Ajax(["post"=>$_POST, "isAuth" => true, "access" => "cr"]);
+$ajax = new Ajax(["access" => "cr"]);
 
-if($ajax->isAccess())
+if($app->getStatusCode() == 100)
 {
+    $result["statusCode"] = $app->getStatusCode();
+    $result["statusMessage"] = $app->getStatusMessage();
     $result["test"] = "ok";
+}
+else
+{
+    $result["statusCode"] = $app->getStatusCode();
+    $result["statusMessage"] = $app->getStatusMessage();
 }
 
 echo json_encode($result);

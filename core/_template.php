@@ -15,7 +15,10 @@ class ClassName
     //init
         protected function init()
         {
+            if($this->app->getStatusCode() == 100)
+            {
 
+            }
         }
     //init
 
