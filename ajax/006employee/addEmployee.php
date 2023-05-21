@@ -16,14 +16,20 @@ $ajax = new Ajax(["access" => "cr"]);
 
 if($app->getStatusCode() == 100)
 {
-    $result["statusCode"] = $app->getStatusCode();
-    $result["statusMessage"] = $app->getStatusMessage();
-    $result["test"] = "ok";
+    $ajax->prepareValidation("post");
+    $ajax->addValidation("name",["required","string",["max",100]]);
+    $ajax->addValidation("birthDate",["required","date"]);
+    $ajax->addValidation("KTPNumber",["numeric"]);
+    $ajax->addValidation("positionId",["int"]);
+    $ajax->validate();
 }
-else
+
+if($app->getStatusCode() == 100)
 {
-    $result["statusCode"] = $app->getStatusCode();
-    $result["statusMessage"] = $app->getStatusMessage();
+    $result["ajaxIsOK"] = true;
 }
+
+$result["statusCode"] = $app->getStatusCode();
+$result["statusMessage"] = $app->getStatusMessage();
 
 echo json_encode($result);

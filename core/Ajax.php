@@ -7,6 +7,8 @@ class Ajax
 
     protected array $get;
     protected array $post;
+    protected string $method;
+    protected array $validationRules;
 
     protected bool $isAuth;
     protected string $access;
@@ -40,6 +42,77 @@ class Ajax
 
 
     //set variable
+        public function prepareValidation(string $method)
+        {
+            if($this->app->getStatusCode() != 100) return null;
+
+            $this->method = $method;
+            $this->validationRules[$this->method] = [];
+        }
+        public function addValidation(string $name, array $rules)
+        {
+            if($this->app->getStatusCode() != 100) return null;
+
+            $this->validationRules[$this->method][$name] = $rules;
+        }
+        public function validate()
+        {
+            if($this->app->getStatusCode() != 100) return null;
+
+            $isError = 0;
+            foreach($this->validationRules AS $method => $validationRules)
+            {
+                foreach($validationRules AS $inputName => $rules)
+                {
+                    foreach($rules AS $rule)
+                    {
+                        if(is_array($rule))
+                        {
+                            $ruleName = $rule[0];
+                        }
+                        else
+                        {
+                            $ruleName = $rule;
+                        }
+
+                        if($ruleName == "required" && !$this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(301);
+                        }
+                        if($ruleName == "string" && is_numeric($this->$method[$inputName]))
+                        {
+                            $this->app->setStatusCode(302);
+                        }
+                        if($ruleName == "numeric" && floatval($this->$method[$inputName]) != $this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(303);
+                        }
+                        if(($ruleName == "int" || $ruleName == "integer") && intval($this->$method[$inputName]) != $this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(304);
+                        }
+                        if($ruleName == "max")
+                        {
+                            if(in_array("string",$rules) && strlen($this->$method[$inputName]) > $rule[1])
+                                $this->app->setStatusCode(305);
+                            if(in_array(["numeric","int","integer"],$rules) && $this->$method[$inputName] > $rule[1])
+                                $this->app->setStatusCode(305);
+                        }
+                        if($ruleName == "min")
+                        {
+                            if(in_array("string",$rules) && strlen($this->$method[$inputName]) < $rule[1])
+                                $this->app->setStatusCode(306);
+                            if(in_array(["numeric","int","integer"],$rules) && $this->$method[$inputName] < $rule[1])
+                                $this->app->setStatusCode(306);
+                        }
+                    }
+                }
+            }
+            if($isError)
+            {
+                $this->app->setStatusCode(300);
+            }
+        }
     //set variable
 
     //get / return variable
