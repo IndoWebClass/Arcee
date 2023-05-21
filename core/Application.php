@@ -9,6 +9,7 @@ class Application
     public static Application $app;
 
     protected int $statusCode = 100;
+    protected array $additionalStatusMessages;
 
     public function __construct(array $params)
     {
@@ -40,11 +41,12 @@ class Application
                 $this->router->setRoute($url, $callback);
             }
         }
-        public function setStatusCode($statusCode)
+        public function setStatusCode(int $statusCode, array $additionalStatusMessages = [])
         {
             if($this->statusCode == 100)
             {
                 $this->statusCode = $statusCode;
+                $this->additionalStatusMessages = $additionalStatusMessages;
             }
         }
     //set variable
@@ -98,8 +100,7 @@ class Application
                 case 204 : $message = "ACCESS ERROR : NO UPDATE ACCESS"; break;
                 case 205 : $message = "ACCESS ERROR : NO DELETE ACCESS"; break;
 
-
-                case 300 : $message = "AJAX ERROR"; break;
+                case 301 : $message = "AJAX ERROR : VALIDATION ERROR : {$this->additionalStatusMessages[0]} RULE {$this->additionalStatusMessages[1]}"; break;
             }
 
             return $message;

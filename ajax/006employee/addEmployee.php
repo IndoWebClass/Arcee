@@ -21,6 +21,7 @@ if($app->getStatusCode() == 100)
     $ajax->addValidation("birthDate",["required","date"]);
     $ajax->addValidation("KTPNumber",["numeric"]);
     $ajax->addValidation("positionId",["int"]);
+    $ajax->addValidation("datetime",["datetime"]);
     $ajax->validate();
 }
 

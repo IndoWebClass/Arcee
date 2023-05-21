@@ -58,8 +58,6 @@ class Ajax
         public function validate()
         {
             if($this->app->getStatusCode() != 100) return null;
-
-            $isError = 0;
             foreach($this->validationRules AS $method => $validationRules)
             {
                 foreach($validationRules AS $inputName => $rules)
@@ -75,42 +73,56 @@ class Ajax
                             $ruleName = $rule;
                         }
 
-                        if($ruleName == "required" && !$this->$method[$inputName])
+                        if($this->app->getStatusCode() == 100 && $ruleName == "required" && !$this->$method[$inputName])
                         {
-                            $this->app->setStatusCode(301);
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
                         }
-                        if($ruleName == "string" && is_numeric($this->$method[$inputName]))
+                        if($this->app->getStatusCode() == 100 && $ruleName == "string" && is_numeric($this->$method[$inputName]))
                         {
-                            $this->app->setStatusCode(302);
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
                         }
-                        if($ruleName == "numeric" && floatval($this->$method[$inputName]) != $this->$method[$inputName])
+                        if($this->app->getStatusCode() == 100 && $ruleName == "email" && !filter_var($this->$mothd[$inputName], FILTER_VALIDATE_EMAIL))
                         {
-                            $this->app->setStatusCode(303);
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
                         }
-                        if(($ruleName == "int" || $ruleName == "integer") && intval($this->$method[$inputName]) != $this->$method[$inputName])
+                        if($this->app->getStatusCode() == 100 && $ruleName == "numeric" && floatval($this->$method[$inputName]) != $this->$method[$inputName])
                         {
-                            $this->app->setStatusCode(304);
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
                         }
-                        if($ruleName == "max")
+                        if($this->app->getStatusCode() == 100 && ($ruleName == "int" || $ruleName == "integer") && intval($this->$method[$inputName]) != $this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "date")
+                        {
+                            $inputValue = $this->$method[$inputName];
+                            $date = \DateTime::createFromFormat("Y-m-d", $inputValue);
+                            if(!$date)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                            else if($date->format("Y-m-d") != $inputValue)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "datetime")
+                        {
+                            $inputValue = $this->$method[$inputName];
+                            $date = \DateTime::createFromFormat("Y-m-d H:i:s", $inputValue);
+                            if(!$date)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                            else if($date->format("Y-m-d H:i:s") != $inputValue)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "max")
                         {
                             if(in_array("string",$rules) && strlen($this->$method[$inputName]) > $rule[1])
-                                $this->app->setStatusCode(305);
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
                             if(in_array(["numeric","int","integer"],$rules) && $this->$method[$inputName] > $rule[1])
-                                $this->app->setStatusCode(305);
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
                         }
-                        if($ruleName == "min")
+                        if($this->app->getStatusCode() == 100 && $ruleName == "min")
                         {
                             if(in_array("string",$rules) && strlen($this->$method[$inputName]) < $rule[1])
-                                $this->app->setStatusCode(306);
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
                             if(in_array(["numeric","int","integer"],$rules) && $this->$method[$inputName] < $rule[1])
-                                $this->app->setStatusCode(306);
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
                         }
                     }
                 }
-            }
-            if($isError)
-            {
-                $this->app->setStatusCode(300);
             }
         }
     //set variable
