@@ -9,6 +9,7 @@ class Application
     public static Application $app;
 
     protected int $statusCode = 100;
+    protected array $additionalStatusMessages;
 
     public function __construct(array $params)
     {
@@ -17,6 +18,7 @@ class Application
         $this->server = new Server();
         $this->router = new Router($this->server);
 
+        $this->statusCode = 100;
         $this->init();
     }
 
@@ -39,11 +41,12 @@ class Application
                 $this->router->setRoute($url, $callback);
             }
         }
-        public function setStatusCode($statusCode)
+        public function setStatusCode(int $statusCode, array $additionalStatusMessages = [])
         {
             if($this->statusCode == 100)
             {
                 $this->statusCode = $statusCode;
+                $this->additionalStatusMessages = $additionalStatusMessages;
             }
         }
     //set variable
@@ -79,32 +82,28 @@ class Application
         }
         public function getStatusCode()
         {
-            if($this->statusCode == 100)
-            {
-                return $this->statusCode;
-            }
+            return $this->statusCode;
         }
         public function getStatusMessage()
         {
-            if($this->statusCode == 100)
+            $message = "Status Code not recognize";
+            switch($this->statusCode)
             {
-                $message = "Status Code not recognize";
-                switch($this->statusCode)
-                {
-                    case 100 : $message = "OK"; break;
+                case 100 : $message = "OK"; break;
 
-                    case 101 : $message = "SESSION ERROR : NO LOGIN RECORD"; break;
-                    case 102 : $message = "SESSION ERROR : SESSION EXPIRED"; break;
+                case 101 : $message = "SESSION ERROR : NO LOGIN RECORD"; break;
+                case 102 : $message = "SESSION ERROR : SESSION EXPIRED"; break;
 
-                    case 201 : $message = "ACCESS ERROR : NO ACCESS"; break;
-                    case 202 : $message = "ACCESS ERROR : NO CREATE ACCESS"; break;
-                    case 203 : $message = "ACCESS ERROR : NO READ ACCESS"; break;
-                    case 204 : $message = "ACCESS ERROR : NO UPDATE ACCESS"; break;
-                    case 205 : $message = "ACCESS ERROR : NO DELETE ACCESS"; break;
-                }
+                case 201 : $message = "ACCESS ERROR : NO ACCESS"; break;
+                case 202 : $message = "ACCESS ERROR : NO CREATE ACCESS"; break;
+                case 203 : $message = "ACCESS ERROR : NO READ ACCESS"; break;
+                case 204 : $message = "ACCESS ERROR : NO UPDATE ACCESS"; break;
+                case 205 : $message = "ACCESS ERROR : NO DELETE ACCESS"; break;
 
-                return $message;
+                case 301 : $message = "AJAX ERROR : VALIDATION ERROR : {$this->additionalStatusMessages[0]} RULE {$this->additionalStatusMessages[1]}"; break;
             }
+
+            return $message;
         }
     //get / return variable
 

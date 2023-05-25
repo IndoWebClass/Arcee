@@ -43,7 +43,8 @@ $form->addInput(["label" => ["text" => "Tempat Lahir"],"input" => ["name" => "bi
 $form->addInput(["label" => ["text" => "No KTP"],"input" => ["name" => "KTPNumber"]]);
 $form->addInput(["label" => ["text" => "No NPWP"],"input" => ["name" => "NPWPNumber"]]);
 $form->addInput(["label" => ["text" => "Tanggal Join"],"input" => ["name" => "enrolmentDate", "type" => "date"]]);
-$form->addInput(["label" => ["text" => "Jabatan"],"input" => ["name" => "posisitonName"]]);
+$form->addInput(["label" => ["text" => "Jabatan"],"input" => ["name" => "positionId"]]);
+$form->addInput(["label" => ["text" => "Date Time"],"input" => ["name" => "datetime"]]);
 
 //$form->render();
 

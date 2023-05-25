@@ -7,6 +7,8 @@ class Ajax
 
     protected array $get;
     protected array $post;
+    protected string $method;
+    protected array $validationRules;
 
     protected bool $isAuth;
     protected string $access;
@@ -40,6 +42,89 @@ class Ajax
 
 
     //set variable
+        public function prepareValidation(string $method)
+        {
+            if($this->app->getStatusCode() != 100) return null;
+
+            $this->method = $method;
+            $this->validationRules[$this->method] = [];
+        }
+        public function addValidation(string $name, array $rules)
+        {
+            if($this->app->getStatusCode() != 100) return null;
+
+            $this->validationRules[$this->method][$name] = $rules;
+        }
+        public function validate()
+        {
+            if($this->app->getStatusCode() != 100) return null;
+            foreach($this->validationRules AS $method => $validationRules)
+            {
+                foreach($validationRules AS $inputName => $rules)
+                {
+                    foreach($rules AS $rule)
+                    {
+                        if(is_array($rule))
+                        {
+                            $ruleName = $rule[0];
+                        }
+                        else
+                        {
+                            $ruleName = $rule;
+                        }
+
+                        if($this->app->getStatusCode() == 100 && $ruleName == "required" && !$this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "string" && is_numeric($this->$method[$inputName]))
+                        {
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "email" && !filter_var($this->$mothd[$inputName], FILTER_VALIDATE_EMAIL))
+                        {
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "numeric" && floatval($this->$method[$inputName]) != $this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && ($ruleName == "int" || $ruleName == "integer") && intval($this->$method[$inputName]) != $this->$method[$inputName])
+                        {
+                            $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "date")
+                        {
+                            $inputValue = $this->$method[$inputName];
+                            $date = \DateTime::createFromFormat("Y-m-d", $inputValue);
+                            if(!$date)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                            else if($date->format("Y-m-d") != $inputValue)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "datetime")
+                        {
+                            $inputValue = $this->$method[$inputName];
+                            $date = \DateTime::createFromFormat("Y-m-d H:i:s", $inputValue);
+                            if(!$date)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                            else if($date->format("Y-m-d H:i:s") != $inputValue)$this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "max")
+                        {
+                            if(in_array("string",$rules) && strlen($this->$method[$inputName]) > $rule[1])
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                            if(in_array(["numeric","int","integer"],$rules) && $this->$method[$inputName] > $rule[1])
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                        if($this->app->getStatusCode() == 100 && $ruleName == "min")
+                        {
+                            if(in_array("string",$rules) && strlen($this->$method[$inputName]) < $rule[1])
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                            if(in_array(["numeric","int","integer"],$rules) && $this->$method[$inputName] < $rule[1])
+                                $this->app->setStatusCode(301,[$inputName, $ruleName]);
+                        }
+                    }
+                }
+            }
+        }
     //set variable
 
     //get / return variable
